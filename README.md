@@ -14,7 +14,7 @@ The Airthings Wave Plus is a smart indoor air quality monitor equipped with sens
 
 ## How it works
 
-The ESP32 microcontroller connects to the Airthings Wave Plus device over BLE and reads the sensor data. The data can then be processed or sent to a server for further analysis and visualization.
+The ESP32 microcontroller connects to the Airthings Wave Plus over BLE and reads the sensor data. The Airthings Wave Plus samples sensor data once every 5 minutes, so changes in the environment may not be immediately reflected in the sensor readings.
 
 ## Requirements
 
