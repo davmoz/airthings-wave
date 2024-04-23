@@ -40,10 +40,11 @@ struct CurrentValues
 class Wave2
 {
 private:
+  uint16_t id;
+  uint32_t serialNumber;
   BLEClient *pClient;
   BLERemoteCharacteristic *pCharacteristic;
   std::string macAddress;
-  uint32_t serialNumber;
 
 public:
   Wave2(uint32_t serial) : serialNumber(serial), pClient(nullptr), pCharacteristic(nullptr) {}
@@ -65,28 +66,19 @@ public:
     {
       BLEAdvertisedDevice device = foundDevices.getDevice(i);
 
-      uint8_t *MFRdata;
-      MFRdata = (uint8_t *)device.getManufacturerData().data();
+      uint8_t *mfrData;
+      mfrData = (uint8_t *)device.getManufacturerData().data();
 
-      if (parseSerialNumber(MFRdata) == serialNumber)
+      if (parseSerialNumber(mfrData) == serialNumber)
       {
-        Serial.println("Found device with matching serial number");
         Serial.println("######################################################################");
-        Serial.println("Found device: ");
-        Serial.print("Device: ");
+        Serial.println("Found device with matching serial number");
+        Serial.print("ID: ");
+        Serial.print(id);
+        Serial.print(", SN: ");
+        Serial.print(serialNumber);
+        Serial.print(", ");
         Serial.println(device.toString().c_str());
-        Serial.print("Name: ");
-        Serial.println(device.getName().c_str());
-        Serial.print("Address: ");
-        Serial.println(device.getAddress().toString().c_str());
-        Serial.print("Manufacturer data: ");
-        char *manufacturerdata = BLEUtils::buildHexData(NULL, (uint8_t *)device.getManufacturerData().data(), device.getManufacturerData().length());
-        int len = device.getManufacturerData().length();
-        Serial.println(manufacturerdata);
-        Serial.print("Service UUID: ");
-        Serial.println(device.getServiceUUID().toString().c_str());
-        Serial.print("RSSI: ");
-        Serial.println(device.getRSSI());
         Serial.println("######################################################################");
 
         return device.getAddress().toString();
@@ -145,8 +137,8 @@ public:
 private:
   uint32_t parseSerialNumber(uint8_t *MFRdata)
   {
-    uint16_t id = (MFRdata[1] << 8) | MFRdata[0];
-    uint32_t serialNumber = (MFRdata[5] << 24) | (MFRdata[4] << 16) | (MFRdata[3] << 8) | MFRdata[2];
+    id = (MFRdata[1] << 8) | MFRdata[0];
+    serialNumber = (MFRdata[5] << 24) | (MFRdata[4] << 16) | (MFRdata[3] << 8) | MFRdata[2];
 
     if (id == 0x0334)
     {
@@ -176,6 +168,7 @@ void loop()
 {
   wave2.connect(3);
   CurrentValues currentValues = wave2.read();
+
   Serial.print("Humidity: ");
   Serial.print(currentValues.humidity);
   Serial.print(" %rH, Temperature: ");
